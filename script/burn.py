@@ -1,9 +1,7 @@
 
 import serial,time #You need the pyserial library
 import struct
-import winsound
-Freq = 2500 # Set Frequency To 2500 Hertz
-Dur = 1000 # Set Duration To 1000 ms == 1 second
+
 
 ser = serial.Serial('COM3', 38400, timeout=0.01)
 #time.sleep(10);#my arduino bugs if data is written to the port after opening it
@@ -30,7 +28,7 @@ while True:
     print(option);
     if(option==1):
         name=input("What the name of the file?")
-        
+
         f = open(name, 'w')
         f.close()
         romsize=int(input("What the size of the rom in KB?"))
@@ -104,12 +102,12 @@ while True:
             f.write(data)
             numBytes=numBytes+1
         f.close()
-        winsound.Beep(Freq,Dur)
+
     if(option==3):
         name=input("From which file?")
         ser.write(bytes("a","ASCII"))
         ser.write(bytes("b","ASCII"))
-        ser.write(bytes("k","ASCII"))   
+        ser.write(bytes("k","ASCII"))
         f = open(name, 'rb')
         index=0
         while index<ramsize:
@@ -159,7 +157,7 @@ while True:
                 print(num)
                 print(adr)
                 ser.flushInput()
-                
+
                 ser.write(bytes("a","ASCII"))
                 ser.write(bytes("b","ASCII"))
                 ser.write(bytes("f","ASCII"))
@@ -188,7 +186,7 @@ while True:
                 print(value)
                 print(adr)
                 ser.flushInput()
-                
+
                 ser.write(bytes("a","ASCII"))
                 ser.write(bytes("b","ASCII"))
                 ser.write(bytes("g","ASCII"))
@@ -205,4 +203,3 @@ while True:
                 break
     #ser.write(bytes(option));
     #time.sleep(0.05);#
-        
