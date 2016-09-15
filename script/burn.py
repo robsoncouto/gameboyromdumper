@@ -2,8 +2,13 @@
 import serial,time #You need the pyserial library
 import struct
 
+#windows:
+#ser = serial.Serial('COM3', 38400, timeout=0.01)
 
-ser = serial.Serial('COM3', 38400, timeout=0.01)
+#linux:
+ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=0.01)
+
+
 #time.sleep(10);#my arduino bugs if data is written to the port after opening it
 #filename='sonic.bin'#name of the rom, bin format
 #f=open(name,'rb');
