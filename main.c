@@ -3,7 +3,7 @@
  *
  * Created: 29/10/2015 20:00:15
  *  Author: Roco
- */ 
+ */
 #define F_CPU 16000000UL
 #define UART_BAUD_RATE      38400
 
@@ -60,10 +60,8 @@ int main(void){
 								writeRAM();
 							break;
 							case 'e':
-							
-							break;	
-							
-							//puppet mode, work in progress		
+							break;
+							//puppet mode, work in progress	
 							case 'f':
 							//read bytes from location
 								while(uart_available()<3);
@@ -78,7 +76,6 @@ int main(void){
 								}
 								uart_putc('\n');
 							case 'g':
-							
 								while(uart_available()<3);
 								adress = uart_getc();
 								adress |= (uart_getc()<<8);
@@ -92,7 +89,7 @@ int main(void){
 					}
 				}
 			}
-						
+
 		}			
 	}
 }
