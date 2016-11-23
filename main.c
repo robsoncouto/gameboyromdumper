@@ -10,7 +10,7 @@
 #include<avr/io.h>
 #include<util/delay.h>
 #include <avr/interrupt.h>
-#include "uart.h"
+#include "serial/uart.h"
 #include "constants.h"
 
 void Go2ADR(uint16_t Adr);
