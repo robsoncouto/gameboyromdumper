@@ -1,10 +1,11 @@
 # gbcart tool
 Tool for reading data from Game Boy cartridges or the Gameboy camera.
 ##Description
-Python script and AVR C code. The python serial module must be installed. 
-All the process that lead to this program is detailed at www.dragaosemchama.com.br
+This is a project that I started in order to backup my Gameboy saves to the PC. It also dumps roms and Gameboy camera saves. All the process that lead to this program is detailed at www.dragaosemchama.com.br/?lang=en_us
+##Hardware
+Schematic and layout ealge files are available, the cartridge-PC interface board uses a atmega32 and a Gameboy Color cartridge socket. The socket was salvaged from a broken gameboy. The board is connected to a PC with a USB-serial ttl cable.
 ##Usage
-The python script is used for reading saves, roms or the cartridge header. A serial link is used for this purpose.
-The microcontroller code was written for a Atmega32, but can be easily ported to other microcontrollers or architectures.
+The python script is used for reading saves, roms or the cartridge header. The microcontroller code was written for a Atmega32, but can be easily ported to other microcontrollers or architectures.
 ##Serial library
 This code uses the serial library kindly shared by Peter Fleury
+http://homepage.hispeed.ch/peterfleury/avr-software.html
