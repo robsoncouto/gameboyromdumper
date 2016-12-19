@@ -1,9 +1,11 @@
+#define F_CPU 16000000UL
 #include<avr/io.h>
 #include<util/delay.h>
 #include <avr/interrupt.h>
 #include "constants.h"
 #include "serial/uart.h"
 #define UART_BAUD_RATE      38400
+
 
 uint8_t MBC=0;
 
@@ -45,7 +47,7 @@ uint8_t readByte(uint16_t Adr){
 	return b;
 }
 
-void init(){
+void init(void){
 	DDRA=0xFF;
 	DDRB=0xFF;
 	DDRC=0x00;
@@ -136,7 +138,7 @@ void readBank(uint16_t bank ){
 		}
 	}
 }
-void readRAM(){
+void readRAM(void){
 	//enable the RAM chip
 	if (MBC==1){
 		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
