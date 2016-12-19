@@ -61,7 +61,7 @@ int main(void){
 							break;
 							case 'e':
 							break;
-							//puppet mode, work in progress	
+							//puppet mode, work in progress
 							case 'f':
 							//read bytes from location
 								while(uart_available()<3);
@@ -90,26 +90,33 @@ int main(void){
 				}
 			}
 
-		}			
+		}
 	}
 }
+void programMode(void) {
+	DDRC=0xFF;
+}
+void readMode(void) {
+	DDRC=0x00;
+}
+
 void Go2ADR(uint16_t Adr){
 	ADRL=Adr&0x00FF;
 	ADRH=Adr>>8;
 }
 void WriteByte(uint16_t Adr,uint8_t data){
-	
-	DDRC=0xFF; 
+
+	DDRC=0xFF;
 	Go2ADR(Adr);
 	DATAOUT=data;
 	ControlPort|=(1<<RD);
 	ControlPort&=~(1<<WR);
 	_delay_us(2);
 	ControlPort|=(1<<WR);
-		
+
 }
 uint8_t readByte(uint16_t Adr){
-	
+
 	uint8_t b;
 	//DATAOUT=0xFF;////////////////////////////////////////Noobada
 	DDRC=0x00;
@@ -152,13 +159,13 @@ void init(){
 			WriteByte(0x7000,(0x00));//8k  ram mode
 		}
 	}
-	
-	
+
+
 	//debug
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
 	uart_putc('\n');
-	
+
 }
 void readBank(uint16_t bank ){
 	if (MBC==5){
@@ -185,8 +192,8 @@ void readBank(uint16_t bank ){
 				WriteByte(0x3000,bank);
 				for (uint16_t i=0x4000;i<=0x7FFF;i++){//16k
 					uart_putc(readByte(i));
-				}	
-			}	
+				}
+			}
 		}else{//Mode 1 2MB ROM 8kb RAM
 			if (bank==0){
 				for (uint16_t i=0x000;i<=0x3FFF;i++){//16k
@@ -226,7 +233,7 @@ void readRAM(){
 				for (uint16_t j=0xA000;j<=0xBFFF;j++){
 					uart_putc(readByte(j));
 				}
-				ControlPort|=(1<<MREQ);	
+				ControlPort|=(1<<MREQ);
 			}
 			WriteByte(0x1000,0x00);//disable RAM writing
 		}else{//Mode 1 2MB ROM 8kb RAM
@@ -235,7 +242,7 @@ void readRAM(){
 			for (uint16_t j=0xA000;j<=0xBFFF;j++){
 				uart_putc(readByte(j));
 			}
-			ControlPort|=(1<<MREQ);	
+			ControlPort|=(1<<MREQ);
 		}
 		WriteByte(0x1000,0x00);//disable RAM writing
 	}
@@ -247,7 +254,7 @@ void readRAM(){
 			for (uint16_t j=0xA000;j<=0xBFFF;j++){
 				uart_putc(readByte(j));
 			}
-			ControlPort|=(1<<MREQ);	
+			ControlPort|=(1<<MREQ);
 		}
 		WriteByte(0x1000,0x00);//disable RAM writing
 	}
@@ -259,18 +266,18 @@ void readRAM(){
 			for (uint16_t j=0xA000;j<=0xBFFF;j++){
 				uart_putc(readByte(j));
 			}
-			ControlPort|=(1<<MREQ);	
+			ControlPort|=(1<<MREQ);
 		}
 		//WriteByte(0x0000,0x00);//disable RAM writing
-	}	
+	}
 }
 
 void cartInfo(void){
-	
+
 	//WriteByte(0x7000,0x00);//8k ram mode
 	//WriteByte(0x3000,0x01);
 	//WriteByte(0x4000,0x00);
-	
+
 	//cartridge connection check
 	if (readByte(0x0104)==0xCE){
 		if (readByte(0x0105)==0xED){
@@ -286,7 +293,7 @@ void cartInfo(void){
 	{
 		if(readByte(i)<128) {uart_putc(readByte(i));}//some fake cartridges using values outside ASCII range.
 	}uart_putc('\n');
-	
+
 	uart_puts("Gameboy/Gameboy Color?");
 	uint8_t data =readByte(0x0143);
 	if (data==0x80){
@@ -363,7 +370,7 @@ void writeBank(uint8_t bank){
 	while(count<0x4FFF){
 		//data=uart_getc();
 		count++;
-		
+
 	}
 }
 void writeRAM(void){
@@ -376,9 +383,37 @@ void writeRAM(void){
 				while (uart_available()==0){};
 				WriteByte(j,uart_getc());
 			}
-			
+
 		}
 		WriteByte(0x1000,0x00);//disable RAM writing
 	}
 	ControlPort|=(1<<MREQ);
+}
+
+void writeBlock(unsigned char blockH,unsigned char blockL){
+  uint8_t dataBuffer[128];
+  uint16_t address=0;
+  uint8_t CHK=blockH,CHKreceived;
+  CHK^=blockL;
+
+  address=blockH;
+  address=(address<<8)|blockL;
+  address*=128;
+
+  for(uint8_t i=0;i<128;i++){
+        while(uart_available()==0);
+        dataBuffer[i]=uart_getc();
+        CHK ^= dataBuffer[i];
+  }
+  while(uart_available()==0);
+  CHKreceived=uart_getc();
+  programMode();
+  //only program the bytes if the checksum is equal to the one received
+  if(CHKreceived==CHK){
+    for (int i = 0; i < 128; i++){
+      WriteByte(address,dataBuffer[i]);
+    }
+  uart_putc(CHK);
+  }
+
 }
