@@ -12,7 +12,7 @@
 #include "gbcart.h"
 
 uint8_t a=0,num=0;
-uint16_t adress;
+uint16_t address;
 
 int main(void){
 	init();
@@ -55,24 +55,24 @@ int main(void){
 							case 'f':
 							//read bytes from location
 								while(uart_available()<3);
-								adress = uart_getc();
-								adress |= (uart_getc()<<8);
+								address = uart_getc();
+								address |= (uart_getc()<<8);
 								num=uart_getc();
 								//uart_puts("Byte: \n");
 								while (num>0)
 								{
-									uart_putc(readByte(adress++));
+									uart_putc(readByte(address++));
 									num--;
 								}
 								uart_putc('\n');
 							case 'g':
 								while(uart_available()<3);
-								adress = uart_getc();
-								adress |= (uart_getc()<<8);
+								address = uart_getc();
+								address |= (uart_getc()<<8);
 								num=uart_getc();
 								//uart_puts("Byte: \n");
-								WriteByte(adress,num);
-								uart_putc(readByte(adress));
+								WriteByte(address,num);
+								uart_putc(readByte(address));
 								uart_putc('\n');
 							break;
 						}

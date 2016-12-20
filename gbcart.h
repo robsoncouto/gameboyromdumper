@@ -9,7 +9,9 @@ void WriteByte(uint16_t Adr,uint8_t data);
 
 void init(void);
 
+void selectbank(uint16_t bank);
 void readBank(uint16_t bank);
+
 
 void readRAM(void);
 

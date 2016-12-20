@@ -9,7 +9,7 @@
 #include "constants.h"
 #include "serial/uart.h"
 
-
+uint8_t MBC=0;
 
 void programMode(void) {
 	DATADDR=0xFF;
@@ -81,19 +81,69 @@ void init(void){
 }
 
 
+void selectbank(uint8_t MBC,uint16_t bank){
+  if (MBC==5){
+		if (bank>0){
+			WriteByte(0x2000,(bank&0x00FF));
+			WriteByte(0x3000,(bank>>8));
+		}
+	}
+	if (MBC==1){
+		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
+			if (bank>0){
+				WriteByte(0x3000,bank);
+			}
+		}else{//Mode 1 2MB ROM 8kb RAM
+			if (bank>0){
+				WriteByte(0x3000,bank&0x001F);
+				WriteByte(0x4000,bank>>5);
+			}
+		}
+	}
+	if (MBC==3){
+		if (bank>0){
+			WriteByte(0x2000,bank);
+		}
+  }
+}
+
+void readBank(uint16_t bank,uint8_t isROM){
+  if (isROM){
+    if (bank==0){
+    	for (uint16_t i=0;i<=0x3FFF;i++){//16k
+    		uart_putc(readByte(i));
+    	}
+    }else{
+    	for (uint16_t i=0x4000;i<=0x7FFF;i++){//16k
+    		uart_putc(readByte(i));
+      }
+    }
+  }
+  if(!isROM){
+    ControlPort&=~(1<<MREQ);
+    if (bank==0){
+    	for (uint16_t j=0xA000;j<=0xBFFF;j++){//8k
+    		uart_putc(readByte(j));
+    	}
+    ControlPort|=(1<<MREQ);
+    }
+  }
+}
+
+
 
 void readRAM(void){
 	if (MBC==1){
 		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
 			WriteByte(0x1000,0x0A);//enable RAM writing
 			for (uint8_t i=0;i<4;i++){
-				selectbank(MBC,bank);//select bank
+				selectbank(MBC,i);//select bank
 				readBank(i,RAM);
 			}
 			WriteByte(0x1000,0x00);//disable RAM writing
 		}else{//Mode 1 2MB ROM 8kb RAM
 			WriteByte(0x1000,0x0A);
-			readBank(0,RAM)
+			readBank(0,RAM);
       WriteByte(0x1000,0x00);//disable RAM writing
 		}
 
@@ -256,54 +306,5 @@ void writeBlock(uint8_t blockH,uint8_t blockL, uint8_t isROM){
       }
     uart_putc(CHK);
     }
-  }
-}
-
-
-void selectbank(uint8_t MBC,uint16_t bank){
-  if (MBC==5){
-		if (bank>0){
-			WriteByte(0x2000,(bank&0x00FF));
-			WriteByte(0x3000,(bank>>8));
-		}
-	}
-	if (MBC==1){
-		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
-			if (bank>0){
-				WriteByte(0x3000,bank);
-			}
-		}else{//Mode 1 2MB ROM 8kb RAM
-			if (bank>0){
-				WriteByte(0x3000,bank&0x001F);
-				WriteByte(0x4000,bank>>5);
-			}
-		}
-	}
-	if (MBC==3){
-		if (bank>0){
-			WriteByte(0x2000,bank);
-		}
-  }
-}
-
-void readBank(uint16_t bank,uint8_t isROM){
-  if (isROM){
-    if (bank==0){
-    	for (uint16_t i=0;i<=0x3FFF;i++){//16k
-    		uart_putc(readByte(i));
-    	}
-    }else{
-    	for (uint16_t i=0x4000;i<=0x7FFF;i++){//16k
-    		uart_putc(readByte(i));
-      }
-    }
-  }
-  if(!isROM){
-    ControlPort&=~(1<<MREQ);
-    if (bank==0){
-    	for (uint16_t j=0xA000;j<=0xBFFF;j++){//8k
-    		uart_putc(readByte(j));
-    	}
-    ControlPort|=(1<<MREQ);
   }
 }
