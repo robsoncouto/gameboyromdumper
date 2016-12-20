@@ -1,18 +1,37 @@
 
 import serial,time #You need the pyserial library
-import struct
+import struct,sys
 
 #windows:
 #ser = serial.Serial('COM3', 38400, timeout=0.01)
 
 #linux:
-ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=0.01)
+try:
+    ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=0.01)
+except :
+    print("Could not open serial port, please make sure \nthe board is connected and port number is correct")
+    sys.exit()
 
 
 #time.sleep(10);#my arduino bugs if data is written to the port after opening it
 #filename='sonic.bin'#name of the rom, bin format
 #f=open(name,'rb');
 #with open(filename,'rb') as f:
+
+
+print(" _____________________                                      ")
+print("|     ______________  |__                                   ")
+print("|    /              \    |         _               _        ")
+print("|    \______________/    |     ___| |_ ___ ___ ___| |_      ")
+print("|    ________________    |     | . | . |  _| .'|  _|  _|    ")
+print("|    |              |    |     |_  |___|___|__,|_| |_|      ")
+print("|    |              |    |     |___|                        ")
+print("|    |              |    |                                  ")
+print("|    |              |    |     A tool for reading data from ")
+print("|    |              |    |     Game Boy cartridges.         ")
+print("|    |______________|    |                 Robson Couto 2016")
+print("|________________________|         www.dragaosemchama.com.br")
+
 while True:
     print("===========================================")
     print("           What do you want do do?         ")
