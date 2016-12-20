@@ -1,19 +1,19 @@
 #define F_CPU 16000000UL
-#include<avr/io.h>
+#define UART_BAUD_RATE      38400
 #include<util/delay.h>
 #include <avr/interrupt.h>
 #include "constants.h"
 #include "serial/uart.h"
-#define UART_BAUD_RATE      38400
+
 
 
 uint8_t MBC=0;
 
 void programMode(void) {
-	DDRC=0xFF;
+	DATADDR=0xFF;
 }
 void readMode(void) {
-	DDRC=0x00;
+	DATADDR=0x00;
 }
 
 void Go2ADR(uint16_t Adr){
@@ -21,21 +21,18 @@ void Go2ADR(uint16_t Adr){
 	ADRH=Adr>>8;
 }
 void WriteByte(uint16_t Adr,uint8_t data){
-
-	DDRC=0xFF;
+	DATADDR=0xFF;
 	Go2ADR(Adr);
 	DATAOUT=data;
 	ControlPort|=(1<<RD);
 	ControlPort&=~(1<<WR);
 	_delay_us(2);
 	ControlPort|=(1<<WR);
-
 }
-uint8_t readByte(uint16_t Adr){
 
+uint8_t readByte(uint16_t Adr){
 	uint8_t b;
-	//DATAOUT=0xFF;////////////////////////////////////////Noobada
-	DDRC=0x00;
+	DATADDR=0x00;
 	Go2ADR(Adr);
 	//ControlPort&=~(1<<MREQ);
 	ControlPort|=(1<<WR);
@@ -48,9 +45,9 @@ uint8_t readByte(uint16_t Adr){
 }
 
 void init(void){
-	DDRA=0xFF;
-	DDRB=0xFF;
-	DDRC=0x00;
+	ADRHDDR=0xFF;
+	ADRLDDR=0xFF;
+	DATADDR=0x00;
 	ControlDDR=(1<<WR)|(1<<RD)|(1<<LED)|(1<<RST)|(1<<MREQ);
 	ControlPort=(1<<WR)|(1<<RD)|(0<<LED)|(1<<RST)|(1 <<MREQ);
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU) );
@@ -75,14 +72,12 @@ void init(void){
 			WriteByte(0x7000,(0x00));//8k  ram mode
 		}
 	}
-
-
 	//debug
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
 	uart_putc('\n');
-
 }
+
 void readBank(uint16_t bank ){
 	if (MBC==5){
 		if (bank==0)
@@ -138,8 +133,8 @@ void readBank(uint16_t bank ){
 		}
 	}
 }
+
 void readRAM(void){
-	//enable the RAM chip
 	if (MBC==1){
 		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
 			WriteByte(0x1000,0x0A);//enable RAM writing
@@ -184,15 +179,11 @@ void readRAM(void){
 			}
 			ControlPort|=(1<<MREQ);
 		}
-		//WriteByte(0x0000,0x00);//disable RAM writing
+
 	}
 }
 
 void cartInfo(void){
-
-	//WriteByte(0x7000,0x00);//8k ram mode
-	//WriteByte(0x3000,0x01);
-	//WriteByte(0x4000,0x00);
 
 	//cartridge connection check
 	if (readByte(0x0104)==0xCE){

@@ -8,9 +8,7 @@
 
 #include<avr/io.h>
 #include<util/delay.h>
-#include <avr/interrupt.h>
 #include "serial/uart.h"
-#include "constants.h"
 #include "gbcart.h"
 
 uint8_t a=0,num=0;
