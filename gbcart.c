@@ -11,8 +11,6 @@
 
 
 
-uint8_t MBC=0;
-
 void programMode(void) {
 	DATADDR=0xFF;
 }
@@ -328,4 +326,30 @@ void writeBlock(uint8_t blockH,uint8_t blockL, uint8_t isROM){
     uart_putc(CHK);
     }
   }
+}
+
+
+void selectbank(uint8_t MBC,uint8_t bank){
+  if (MBC==5){
+		if (bank>0){
+			WriteByte(0x2000,(bank&0x00FF));
+			WriteByte(0x3000,(bank>>8));
+		}
+	}
+	if (MBC==1){
+		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
+			if (bank>0){
+				WriteByte(0x3000,bank);
+			}
+		}else{//Mode 1 2MB ROM 8kb RAM
+			if (bank>0){
+				WriteByte(0x3000,bank&0x001F);
+				WriteByte(0x4000,bank>>5);
+			}
+		}
+	}
+	if (MBC==3){
+		if (bank>0){
+			WriteByte(0x2000,bank);
+		}
 }
