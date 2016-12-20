@@ -1,5 +1,9 @@
 #define F_CPU 16000000UL
 #define UART_BAUD_RATE      38400
+#define ROM 0
+#define RAM 1
+
+
 #include<util/delay.h>
 #include <avr/interrupt.h>
 #include "constants.h"
@@ -297,7 +301,7 @@ void writeRAM(void){
 	ControlPort|=(1<<MREQ);
 }
 
-void writeBlock(unsigned char blockH,unsigned char blockL){
+void writeBlock(uint8_t blockH,uint8_t blockL, uint8_t isROM){
   uint8_t dataBuffer[128];
   uint16_t address=0;
   uint8_t CHK=blockH,CHKreceived;
@@ -316,11 +320,12 @@ void writeBlock(unsigned char blockH,unsigned char blockL){
   CHKreceived=uart_getc();
   programMode();
   //only program the bytes if the checksum is equal to the one received
-  if(CHKreceived==CHK){
-    for (int i = 0; i < 128; i++){
-      WriteByte(address,dataBuffer[i]);
+  if(!isROM){
+    if(CHKreceived==CHK){
+      for (int i = 0; i < 128; i++){
+        WriteByte(address,dataBuffer[i]);
+      }
+    uart_putc(CHK);
     }
-  uart_putc(CHK);
   }
-
 }
