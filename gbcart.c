@@ -165,12 +165,13 @@ void readBank(uint16_t bank,uint8_t isROM){
 
 
 void readRAM(void){
+	if(ramsize==0)return;
 	if (MBC==1){
 		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
 			WriteByte(0x1000,0x0A);//enable RAM writing
-			for (uint8_t i=0;i<4;i++){
-				selectbank(MBC,i);//select bank
-				readBank(i,RAM);
+			for (uint8_t bank=0;bank<ramsize;bank++){
+				selectbank(MBC,bank);//select bank
+				readBank(bank,RAM);
 			}
 			WriteByte(0x1000,0x00);//disable RAM writing
 		}else{//Mode 1 2MB ROM 8kb RAM
@@ -182,17 +183,17 @@ void readRAM(void){
 	}
 	if (MBC==5){
 		WriteByte(0x0000, 0x0A);//enable RAM writing
-		for (uint8_t i=0;i<32;i++){
-			selectbank(MBC,i);
-			readBank(i,RAM);
+		for (uint8_t bank=0;bank<ramsize;bank++){
+			selectbank(MBC,bank);
+			readBank(bank,RAM);
 		}
 		WriteByte(0x1000,0x00);//disable RAM writing
 	}
 	if (MBC==3){
 		WriteByte(0x0000, 0x0A);//enable RAM writing
-		for (uint8_t i=0;i<0x0F;i++){
-			selectbank(MBC,i);
-      readBank(i,RAM);
+		for (uint8_t bank=0;bank<ramsize;bank++){
+			selectbank(MBC,bank);
+      readBank(bank,RAM);
 		}
 
 	}
