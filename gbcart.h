@@ -18,7 +18,7 @@ void init(void);
 void selectbank(uint16_t bank);
 void readBank(uint16_t bank);
 
-
+void readROM(void);
 void readRAM(void);
 
 void writeRAM(void);

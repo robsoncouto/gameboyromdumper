@@ -198,6 +198,13 @@ void readRAM(void){
 	}
 }
 
+void readROM(void){
+	for(int bank=0;bank<romsize;bank++){
+		selectbank(MBC,bank);
+		readBank(bank,ROM);
+	}
+}
+
 void cartInfo(void){
 
 	//cartridge connection check
