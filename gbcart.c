@@ -9,7 +9,8 @@
 #include "constants.h"
 #include "serial/uart.h"
 
-uint8_t MBC=0;
+uint8_t MBC=0,romsize=0,ramsize=0;//size in banks
+
 
 int (*serialAvailable)(void);
 unsigned int (*serialRead)(void);
@@ -71,6 +72,29 @@ void init(void){
 		case 0x1D:MBC=5;break;
 		case 0x1E:MBC=5;break;
 		case 0xFC:MBC=3;break;
+	}
+	//romsize
+	data =readByte(0x0148);
+	switch (data){
+		case 0x00:romsize=2;break;//32kB
+		case 0x01:romsize=4;break;
+		case 0x02:romsize=8;break;
+		case 0x03:romsize=16;break;
+		case 0x04:romsize=32;break;
+		case 0x05:romsize=64;break;
+		case 0x06:romsize=128;break;
+		case 0x52:romsize=72;break;
+		case 0x53:romsize=80;break;
+		case 0x54:romsize=96;break;
+	}
+	//ramsize
+	data =readByte(0x0149);
+	switch (data){
+		case 0x00:ramsize=0;break;
+		case 0x01:ramsize=1;break;
+		case 0x02:ramsize=1;break;
+		case 0x03:ramsize=4;break;
+		case 0x04:ramsize=16;break;
 	}
 	if (MBC==1)	{
 		if (readByte(0x0149)==0x03){
