@@ -28,9 +28,7 @@ int main(void){
 						inByte=serialRead();
 						switch (inByte){
 							case 'c':
-								for(uint16_t  i=0;i<1024;i++){
-									readBank(i);
-								}
+								readROM();
 							break;
 							case 'd':
 								//prints the rom header information
