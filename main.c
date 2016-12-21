@@ -41,7 +41,7 @@ int main(void){
 								uart_puts("Restart complete");
 							break;
 							case 'y':
-								//Prints the ram through serial
+								//Prints ram through serial
 								readRAM();
 							break;
 							case 'k':

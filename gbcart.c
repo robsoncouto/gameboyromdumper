@@ -107,6 +107,12 @@ void init(void){
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
 	uart_putc('\n');
+	uart_puts("romsize:");
+	uart_putc(romsize+0x30);
+	uart_putc('\n');
+	uart_puts("ramsize:");
+	uart_putc(MBC+0x2F);
+	uart_putc('\n');
 	serialAvailable=uart_available;
 	serialRead=uart_getc;
 }
