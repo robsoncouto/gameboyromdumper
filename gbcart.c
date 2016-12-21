@@ -11,6 +11,10 @@
 
 uint8_t MBC=0;
 
+int (*serialAvailable)(void);
+unsigned int (*serialRead)(void);
+
+
 void programMode(void) {
 	DATADDR=0xFF;
 }
@@ -34,7 +38,8 @@ void WriteByte(uint16_t Adr,uint8_t data){
 
 uint8_t readByte(uint16_t Adr){
 	uint8_t b;
-	DATADDR=0x00;
+	DATADDR=0x00; //FIXME move to programMode(), so it is executed only once intead of every read
+								//then check every call to readByte()
 	Go2ADR(Adr);
 	//ControlPort&=~(1<<MREQ);
 	ControlPort|=(1<<WR);
@@ -78,6 +83,8 @@ void init(void){
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
 	uart_putc('\n');
+	serialAvailable=uart_available;
+	serialRead=uart_getc;
 }
 
 
@@ -108,7 +115,8 @@ void selectbank(uint8_t MBC,uint16_t bank){
 }
 
 void readBank(uint16_t bank,uint8_t isROM){
-  if (isROM){
+	readMode();
+	if (isROM){
     if (bank==0){
     	for (uint16_t i=0;i<=0x3FFF;i++){//16k
     		uart_putc(readByte(i));

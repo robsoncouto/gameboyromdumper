@@ -11,21 +11,22 @@
 #include "serial/uart.h"
 #include "gbcart.h"
 
-uint8_t a=0,num=0;
+uint8_t inByte=0,num=0;
 uint16_t address;
+
 
 int main(void){
 	init();
 	_delay_ms(2000);
 	while(1){
-		if (uart_available()>2){
-			while (uart_available()>0){
-				a=uart_getc();
-				if (a=='a'){
-					a=uart_getc();
-					if (a=='b'){
-						a=uart_getc();
-						switch (a){
+		if (serialAvailable()>2){
+			while (serialAvailable()>0){
+				inByte=serialRead();
+				if (inByte=='a'){
+					inByte=serialRead();
+					if (inByte=='b'){
+						inByte=serialRead();
+						switch (inByte){
 							case 'c':
 								for(uint16_t  i=0;i<1024;i++){
 									readBank(i);
@@ -54,10 +55,10 @@ int main(void){
 							//puppet mode, work in progress
 							case 'f':
 							//read bytes from location
-								while(uart_available()<3);
-								address = uart_getc();
-								address |= (uart_getc()<<8);
-								num=uart_getc();
+								while(serialAvailable()<3);
+								address = serialRead();
+								address |= (serialRead()<<8);
+								num=serialRead();
 								//uart_puts("Byte: \n");
 								while (num>0)
 								{
@@ -66,10 +67,10 @@ int main(void){
 								}
 								uart_putc('\n');
 							case 'g':
-								while(uart_available()<3);
-								address = uart_getc();
-								address |= (uart_getc()<<8);
-								num=uart_getc();
+								while(serialAvailable()<3);
+								address = serialRead();
+								address |= (serialRead()<<8);
+								num=serialRead();
 								//uart_puts("Byte: \n");
 								WriteByte(address,num);
 								uart_putc(readByte(address));
