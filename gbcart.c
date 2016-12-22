@@ -6,6 +6,7 @@
 
 #include<util/delay.h>
 #include <avr/interrupt.h>
+#include <stdlib.h>
 #include "constants.h"
 #include "serial/uart.h"
 
@@ -104,14 +105,17 @@ void init(void){
 		}
 	}
 	//debug
+	char debug[5];
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
 	uart_putc('\n');
 	uart_puts("romsize:");
-	uart_putc(romsize+0x30);
+	itoa(romsize,debug,10);
+	uart_puts(debug);
 	uart_putc('\n');
 	uart_puts("ramsize:");
-	uart_putc(MBC+0x2F);
+	itoa(ramsize,debug,10);
+	uart_puts(debug);
 	uart_putc('\n');
 	serialAvailable=uart_available;
 	serialRead=uart_getc;
@@ -144,9 +148,9 @@ void selectbank(uint8_t MBC,uint16_t bank){
   }
 }
 
-void readBank(uint16_t bank,uint8_t isROM){
+void readBank(uint16_t bank,uint8_t location){
 	readMode();
-	if (isROM){
+	if (location==ROM){
     if (bank==0){
     	for (uint16_t i=0;i<=0x3FFF;i++){//16k
     		uart_putc(readByte(i));
@@ -157,7 +161,7 @@ void readBank(uint16_t bank,uint8_t isROM){
       }
     }
   }
-  if(!isROM){
+  if(location==RAM){
     ControlPort&=~(1<<MREQ);
     if (bank==0){
     	for (uint16_t j=0xA000;j<=0xBFFF;j++){//8k
@@ -206,9 +210,9 @@ void readRAM(void){
 }
 
 void readROM(void){
-	for(int bank=0;bank<romsize;bank++){
-		selectbank(MBC,bank);
-		readBank(bank,ROM);
+	for(uint8_t bnk=0;bnk<romsize;bnk++){
+		selectbank(MBC,bnk);
+		readBank(bnk,ROM);
 	}
 }
 
