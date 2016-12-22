@@ -1,5 +1,5 @@
 #define F_CPU 16000000UL
-#define UART_BAUD_RATE      38400
+#define UART_BAUD_RATE 38400
 #define ROM 0
 #define RAM 1
 
@@ -58,7 +58,7 @@ void init(void){
 	DATADDR=0x00;
 	ControlDDR=(1<<WR)|(1<<RD)|(1<<LED)|(1<<RST)|(1<<MREQ);
 	ControlPort=(1<<WR)|(1<<RD)|(0<<LED)|(1<<RST)|(1 <<MREQ);
-	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU) );
+	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	sei();
 	uint8_t data =readByte(0x0147);
 	switch (data){

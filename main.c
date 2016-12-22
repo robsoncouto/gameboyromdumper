@@ -5,6 +5,8 @@
  *  Author: Roco
  */
 #define F_CPU 16000000UL
+#define UART_BAUD_RATE 38400
+
 
 #include<avr/io.h>
 #include<util/delay.h>
@@ -19,13 +21,14 @@ int main(void){
 	init();
 	_delay_ms(2000);
 	while(1){
-		if (serialAvailable()>2){
-			while (serialAvailable()>0){
-				inByte=serialRead();
+		//uart_puts("Restart complete");
+		if (uart_available()>2){
+			while (uart_available()>0){
+				inByte=uart_getc();
 				if (inByte=='a'){
-					inByte=serialRead();
+					inByte=uart_getc();
 					if (inByte=='b'){
-						inByte=serialRead();
+						inByte=uart_getc();
 						switch (inByte){
 							case 'c':
 								readROM();
