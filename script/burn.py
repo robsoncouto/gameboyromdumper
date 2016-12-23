@@ -111,7 +111,7 @@ while True:
         time.sleep(1)
         numBytes=0
         name=input("What the name of the file?")
-        f = open(name, 'ab')#yes, that simple
+        f = open(name, 'wb')#yes, that simple
         timeout=20
         while (numBytes<ramsize and timeout>0):
             timeout=20

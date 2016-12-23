@@ -122,33 +122,48 @@ void init(void){
 }
 
 
-void selectbank(uint8_t MBC,uint16_t bank){
-  if (MBC==5){
-		if (bank>0){
-			WriteByte(0x2000,(bank&0x00FF));
-			WriteByte(0x3000,(bank>>8));
-		}
-	}
-	if (MBC==1){
-		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
+void selectbank(uint8_t location, uint16_t bank){
+	if(location==ROM){
+		if (MBC==5){
 			if (bank>0){
-				WriteByte(0x3000,bank);
-			}
-		}else{//Mode 1 2MB ROM 8kb RAM
-			if (bank>0){
-				WriteByte(0x3000,bank&0x001F);
-				WriteByte(0x4000,bank>>5);
+				WriteByte(0x2000,(bank&0x00FF));
+				WriteByte(0x3000,(bank>>8));
 			}
 		}
-	}
-	if (MBC==3){
-		if (bank>0){
-			WriteByte(0x2000,bank);
+		if (MBC==1){
+			if (readByte(0x0149)==0x03){//32k RAM? Mode 2
+				if (bank>0){
+					WriteByte(0x3000,bank);
+				}
+			}else{//Mode 1 2MB ROM 8kb RAM
+				if (bank>0){
+					WriteByte(0x3000,bank&0x001F);
+					WriteByte(0x4000,bank>>5);
+				}
+			}
 		}
-  }
+		if (MBC==3){
+			if (bank>0){
+				WriteByte(0x2000,bank);
+			}
+	  }
+	}
+	if(location==RAM){
+		if (MBC==1){
+			if (readByte(0x0149)==0x03){//32k RAM? Mode 2
+				WriteByte(0x4000,bank);//select bank
+			}
+		}
+		if (MBC==5){
+			WriteByte(0x4000,bank);//select bank
+		}
+		if (MBC==3){
+			WriteByte(0x4000,bank);//select bank
+		}
+	}
 }
 
-void readBank(uint16_t bank,uint8_t location){
+void readBank(uint8_t location, uint16_t bank){
 	readMode();
 	if (location==ROM){
     if (bank==0){
@@ -163,54 +178,27 @@ void readBank(uint16_t bank,uint8_t location){
   }
   if(location==RAM){
     ControlPort&=~(1<<MREQ);
-    	for (uint16_t j=0xA000;j<=0xBFFF;j++){//8k
-    		uart_putc(readByte(j));
-    	}
+		WriteByte(0x1000,0x0A);//enable RAM writing
+    for (uint16_t j=0xA000;j<=0xBFFF;j++){//8k
+    	uart_putc(readByte(j));
+    }
+		WriteByte(0x1000,0x00);//disable RAM writing
     ControlPort|=(1<<MREQ);
   }
 }
 
-
-
 void readRAM(void){
 	if(ramsize==0)return;
-	if (MBC==1){
-		if (readByte(0x0149)==0x03){//32k RAM? Mode 2
-			WriteByte(0x1000,0x0A);//enable RAM writing
-			for (uint8_t bank=0;bank<ramsize;bank++){
-				selectbank(MBC,bank);//select bank
-				readBank(bank,RAM);
-			}
-			WriteByte(0x1000,0x00);//disable RAM writing
-		}else{//Mode 1 2MB ROM 8kb RAM
-			WriteByte(0x1000,0x0A);
-			readBank(0,RAM);
-      WriteByte(0x1000,0x00);//disable RAM writing
-		}
-
-	}
-	if (MBC==5){
-		WriteByte(0x0000, 0x0A);//enable RAM writing
-		for (uint8_t bank=0;bank<ramsize;bank++){
-			selectbank(MBC,bank);
-			readBank(bank,RAM);
-		}
-		WriteByte(0x1000,0x00);//disable RAM writing
-	}
-	if (MBC==3){
-		WriteByte(0x0000, 0x0A);//enable RAM writing
-		for (uint8_t bank=0;bank<ramsize;bank++){
-			selectbank(MBC,bank);
-      readBank(bank,RAM);
-		}
-
+	for (uint8_t bank=0;bank<ramsize;bank++){
+			selectbank(RAM,bank);//select bank
+			readBank(RAM,bank);
 	}
 }
 
 void readROM(void){
 	for(uint8_t bnk=0;bnk<romsize;bnk++){
-		selectbank(MBC,bnk);
-		readBank(bnk,ROM);
+		selectbank(ROM,bnk);
+		readBank(ROM,bnk);
 	}
 }
 
