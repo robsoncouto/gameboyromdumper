@@ -1,5 +1,5 @@
-# gbcart tool
-Tool for reading data from Game Boy cartridges or the Gameboy camera.
+# gbcart tool (in progress)
+Tool for reading data from Game Boy cartridges or the Gameboy camera. The version in the first commits work(mar 2016), but I have started to clean the code, so the present version (dec 2016) is uncomplete. 
 ##Description
 This is a project that I started in order to backup my Gameboy saves to the PC. It also dumps roms and Gameboy camera saves. All the process that lead to this program is detailed at www.dragaosemchama.com.br/?lang=en_us
 ##Hardware
