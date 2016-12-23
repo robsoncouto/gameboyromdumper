@@ -163,12 +163,10 @@ void readBank(uint16_t bank,uint8_t location){
   }
   if(location==RAM){
     ControlPort&=~(1<<MREQ);
-    if (bank==0){
     	for (uint16_t j=0xA000;j<=0xBFFF;j++){//8k
     		uart_putc(readByte(j));
     	}
     ControlPort|=(1<<MREQ);
-    }
   }
 }
 
