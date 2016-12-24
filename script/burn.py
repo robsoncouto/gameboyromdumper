@@ -134,7 +134,7 @@ while True:
             #print(data)
             for j in range(len(data)):
                  CHK=CHK^data[j]
-            time.sleep(0.001)
+            time.sleep(0.01)
             print("Writing data. Current porcentage:{:.2%}".format(i/numblocks),end='\r')
             print("CHK:", CHK)
             response=~CHK
@@ -144,7 +144,7 @@ while True:
                 ser.write(struct.pack(">B",CHK&0xFF))
                 timeout=30
                 while ser.inWaiting()==0:
-                    time.sleep(0.1)
+                    time.sleep(0.01)
                     timeout=timeout-1
                     print("timeout",timeout)
                     if timeout==0:
