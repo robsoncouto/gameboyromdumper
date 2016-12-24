@@ -145,7 +145,6 @@ while True:
         while ser.inWaiting()>0:
             data = ser.readline()
             print(data.decode("ASCII"))#or utf-8
-
     if(option==6):
         name=input("From which file?")
         ser.write(bytes("a","ASCII"))
