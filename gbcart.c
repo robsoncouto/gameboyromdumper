@@ -147,6 +147,7 @@ void selectbank(uint8_t location, uint16_t bank){
 				}
 			}
 		}
+		//Working
 		if (MBC==3){
 			if (bank>0){
 				WriteByte(0x2000,bank);
@@ -162,6 +163,7 @@ void selectbank(uint8_t location, uint16_t bank){
 		if (MBC==5){
 			WriteByte(0x4000,bank);//select bank
 		}
+		//working
 		if (MBC==3){
 			WriteByte(0x4000,bank);//select bank
 		}
