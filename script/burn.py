@@ -39,11 +39,9 @@ while True:
     print("              1-dump                       ")
     print("              2-read save                  ")
     print("              3-burn save                  ")
-    print("              4-burn baank                 ")
     print("              5-cart info                  ")
     print("              7-restart                    ")
-    print("              8-puppet mode                ")
-    print("                                           ")
+    print("              9-exit                       ")
     print("                                           ")
     print("===========================================")
     option=int(input())
@@ -71,38 +69,6 @@ while True:
             f.write(data)
             numBytes=numBytes+1
         f.close()
-    if(option==5):
-        ser.write(bytes("a","ASCII"))
-        ser.write(bytes("b","ASCII"))
-        ser.write(bytes("d","ASCII"))
-        ser.read(3)
-        time.sleep(1)
-        while ser.inWaiting()>0:
-            data = ser.readline()
-            print(data.decode("ASCII"))#or utf-8
-    if(option==4):
-        bank=int(input("What is the bank to be written?"))
-        name=input("From which file?")
-        ser.write(bytes("a","ASCII"))
-        ser.write(bytes("b","ASCII"))
-        ser.write(bytes("z","ASCII"))
-        ser.write(struct.pack(">B",bank))
-        f = open(name, 'rb')
-        pos=bank*16384
-        f.seek(pos)
-        index=0
-        while index<16384:
-            ser.flushInput()
-            ser.write(f.read(1))
-            a=ser.read(1)
-            print(a.decode('ASCII'))
-            while a==bytes("N","ASCII"):
-                print("error, buffer full")
-                f.seek(-1,1);
-                ser.write(f.read(1))
-                a=ser.read();
-            index=index+1
-            print("bit",index)
     if(option==2):
         ser.flushInput()
         ser.write(bytes("a","ASCII"))
@@ -126,7 +92,6 @@ while True:
             f.write(data)
             numBytes=numBytes+1
         f.close()
-
     if(option==3):
         name=input("From which file?")
         ser.write(bytes("a","ASCII"))
@@ -146,6 +111,41 @@ while True:
                 a=ser.read();
             index=index+1
             print("byte",index)
+
+    if(option==4):
+        bank=int(input("What is the bank to be written?"))
+        name=input("From which file?")
+        ser.write(bytes("a","ASCII"))
+        ser.write(bytes("b","ASCII"))
+        ser.write(bytes("z","ASCII"))
+        ser.write(struct.pack(">B",bank))
+        f = open(name, 'rb')
+        pos=bank*16384
+        f.seek(pos)
+        index=0
+        while index<16384:
+            ser.flushInput()
+            ser.write(f.read(1))
+            a=ser.read(1)
+            print(a.decode('ASCII'))
+            while a==bytes("N","ASCII"):
+                print("error, buffer full")
+                f.seek(-1,1);
+                ser.write(f.read(1))
+                a=ser.read();
+            index=index+1
+            print("bit",index)
+
+    if(option==5):
+        ser.write(bytes("a","ASCII"))
+        ser.write(bytes("b","ASCII"))
+        ser.write(bytes("d","ASCII"))
+        ser.read(3)
+        time.sleep(1)
+        while ser.inWaiting()>0:
+            data = ser.readline()
+            print(data.decode("ASCII"))#or utf-8
+
     if(option==6):
         name=input("From which file?")
         ser.write(bytes("a","ASCII"))
