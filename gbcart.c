@@ -73,6 +73,11 @@ void init(void){
 		case 0x1D:MBC=5;break;
 		case 0x1E:MBC=5;break;
 		case 0xFC:MBC=3;break;
+		case 0x0F:MBC=3;break;
+		case 0x10:MBC=3;break;
+		case 0x11:MBC=3;break;
+		case 0x12:MBC=3;break;
+		case 0x13:MBC=3;break;
 	}
 	//romsize
 	data =readByte(0x0148);

@@ -223,7 +223,7 @@ while True:
                     data = ser.readline()
                     #print(data.decode("ASCII"))
                     print(data)
-            if(option==3):
-                break
+    if(option==9):
+        break
     #ser.write(bytes(option));
     #time.sleep(0.05);#
