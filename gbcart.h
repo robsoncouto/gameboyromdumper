@@ -1,5 +1,7 @@
 #ifndef GBCART_H
 #define GBCART_H
+#define ROM 0
+#define RAM 1
 
 
 /*funtion pointers, I dont want to include the uart library in main, so I
@@ -25,7 +27,7 @@ void writeRAM(void);
 
 void cartInfo(void);
 
-void writeBlock(unsigned char blockH,unsigned char blockL);
+void writeBlock(uint8_t location, uint8_t blockH,uint8_t blockL);
 
 uint8_t dataAvailable(void);
 

@@ -57,7 +57,7 @@ void init(void){
 	ADRHDDR=0xFF;
 	ADRLDDR=0xFF;
 	DATADDR=0x00;
-	ControlDDR=(1<<WR)|(1<<RD)|(1<<LED)|(1<<RST)|(1<<MREQ);
+	ControlDDR=(1<<WR)|(1<<RD)|(1<<LED)|(1<<RST)|(1<<MREQ)|(1<<TX)|(0<<RX);
 	ControlPort=(1<<WR)|(1<<RD)|(0<<LED)|(1<<RST)|(1 <<MREQ);
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	sei();
@@ -323,7 +323,7 @@ void writeRAM(void){
 	ControlPort|=(1<<MREQ);
 }
 
-void writeBlock(uint8_t blockH,uint8_t blockL, uint8_t isROM){
+void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
   uint8_t dataBuffer[128];
   uint16_t address=0;
   uint8_t CHK=blockH,CHKreceived;
@@ -342,12 +342,15 @@ void writeBlock(uint8_t blockH,uint8_t blockL, uint8_t isROM){
   CHKreceived=uart_getc();
   programMode();
   //only program the bytes if the checksum is equal to the one received
-  if(!isROM){
+  if(location==RAM){
+		ControlPort&=~(1<<MREQ);
+		selectbank(RAM,address/4);
     if(CHKreceived==CHK){
       for (int i = 0; i < 128; i++){
-        WriteByte(address,dataBuffer[i]);
+        WriteByte(0xA000+(address%8192),dataBuffer[i]);
       }
     uart_putc(CHK);
     }
+		ControlPort|=(1<<MREQ);
   }
 }

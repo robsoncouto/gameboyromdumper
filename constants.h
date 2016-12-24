@@ -9,6 +9,9 @@
 #define WR 4
 #define RD 3
 #define MREQ 2
+#define TX 1
+#define RX 0
+
 
 #define ControlPort PORTD
 #define ControlDDR  DDRD

@@ -13,7 +13,7 @@
 #include "serial/uart.h"
 #include "gbcart.h"
 
-uint8_t inByte=0,num=0;
+uint8_t inByte=0,num=0,addrH=0,addrL=0;
 uint16_t address;
 
 
@@ -49,7 +49,10 @@ int main(void){
 							break;
 							case 'k':
 								//Not done yet .... work in progress
-								writeRAM();
+								while(uart_available()<2);
+          			addrH=uart_getc();
+								addrL=uart_getc();
+          			writeBlock(RAM,addrH,addrL);
 							break;
 							case 'e':
 							break;
