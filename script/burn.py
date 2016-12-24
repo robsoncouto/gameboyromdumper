@@ -92,7 +92,7 @@ while True:
             f.write(data)
             numBytes=numBytes+1
         f.close()
-    if(option==3):
+    """if(option==3):
         name=input("From which file?")
         ser.write(bytes("a","ASCII"))
         ser.write(bytes("b","ASCII"))
@@ -110,7 +110,49 @@ while True:
                 ser.write(f.read(1))
                 a=ser.read();
             index=index+1
-            print("byte",index)
+            print("byte",index)"""
+    if(option==3):
+        name=input("What's the name of the file?")
+        ramsize=int(input("Please insert the size of RAM file in kB?"))
+        ramsize=1024*ramsize
+        numblocks=ramsize/128;
+        print(name)
+        print(numblocks)
+        f = open(name, 'rb')
+        for i in range(numblocks):
+            ser.write(bytes("a","ASCII"))
+            ser.write(bytes("b","ASCII"))
+            ser.write(bytes("k","ASCII"))
+            time.sleep(0.001)
+            ser.write(struct.pack(">B",i>>8))
+            CHK=i>>8
+            time.sleep(0.001)
+            ser.write(struct.pack(">B",i&0xFF))
+            CHK^=i&0xFF
+            time.sleep(0.001)
+            data=f.read(128);
+            #print(data)
+            for j in range(len(data)):
+                 CHK=CHK^data[j]
+            time.sleep(0.001)
+            print("Writing data. Current porcentage:{:.2%}".format(i/numsectors),end='\r')
+            #print("CHK:", CHK)
+            response=~CHK
+            while response!=CHK:
+                ser.write(data)
+                ser.write(struct.pack(">B",CHK&0xFF))
+                timeout=30
+                while ser.inWaiting()==0:
+                    time.sleep(0.01)
+                    timeout=timeout-1
+                    if timeout==0:
+                        print("could not get a response, please start again\n")
+                        break
+                response=ord(ser.read(1))
+                if response!=CHK:
+                    print("wrong checksum, sending chunk again\n")
+        f.close()
+
 
     if(option==4):
         bank=int(input("What is the bank to be written?"))
