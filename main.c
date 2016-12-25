@@ -20,8 +20,9 @@ uint16_t address;
 int main(void){
 	init();
 	_delay_ms(2000);
+
 	while(1){
-		//uart_puts("Restart complete");
+		//PORTD^=(1<<7);
 		if (uart_available()>2){
 			while (uart_available()>0){
 				inByte=uart_getc();

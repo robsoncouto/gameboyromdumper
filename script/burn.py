@@ -134,7 +134,7 @@ while True:
             #print(data)
             for j in range(len(data)):
                  CHK=CHK^data[j]
-            time.sleep(0.01)
+            time.sleep(0.001)
             print("Writing data. Current porcentage:{:.2%}".format(i/numblocks),end='\r')
             print("CHK:", CHK)
             response=~CHK
