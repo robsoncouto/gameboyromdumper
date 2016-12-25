@@ -1,5 +1,5 @@
 #define F_CPU 16000000UL
-#define UART_BAUD_RATE 38400
+#define UART_BAUD_RATE 9600
 #define ROM 0
 #define RAM 1
 

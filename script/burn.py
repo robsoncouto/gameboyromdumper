@@ -7,7 +7,7 @@ import struct,sys
 
 #linux:
 try:
-    ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=0.01)
+    ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=0.01)
 except :
     print("Could not open serial port, please make sure \nthe board is connected and port number is correct")
     sys.exit()
@@ -120,6 +120,7 @@ while True:
         print(numblocks)
         f = open(name, 'rb')
         for i in range(int(numblocks)):
+            ser.flushInput()
             ser.write(bytes("a","ASCII"))
             ser.write(bytes("b","ASCII"))
             ser.write(bytes("k","ASCII"))
@@ -136,17 +137,17 @@ while True:
                  CHK=CHK^data[j]
             time.sleep(0.001)
             print("Writing data. Current porcentage:{:.2%}".format(i/numblocks),end='\r')
-            print("CHK:", CHK)
+            #print("CHK:", CHK)
             response=~CHK
             while response!=CHK:
-                print("sending data")
+                #print("sending data")
                 ser.write(data)
                 ser.write(struct.pack(">B",CHK&0xFF))
                 timeout=30
                 while ser.inWaiting()==0:
                     time.sleep(0.01)
                     timeout=timeout-1
-                    print("timeout",timeout)
+                    #print("timeout",timeout)
                     if timeout==0:
                         print("could not get a response, please start again\n")
                         break
@@ -182,10 +183,10 @@ while True:
             print("bit",index)
 
     if(option==5):
+        ser.flushInput()
         ser.write(bytes("a","ASCII"))
         ser.write(bytes("b","ASCII"))
         ser.write(bytes("d","ASCII"))
-        ser.read(3)
         time.sleep(1)
         while ser.inWaiting()>0:
             data = ser.readline()
@@ -199,6 +200,7 @@ while True:
             data = ser.readline()
             print(data.decode("ASCII"))#or utf-8
     if(option==7):
+        ser.flushInput()
         ser.write(bytes("a","ASCII"))
         ser.write(bytes("b","ASCII"))
         ser.write(bytes("r","ASCII"))

@@ -5,7 +5,6 @@
  *  Author: Roco
  */
 #define F_CPU 16000000UL
-#define UART_BAUD_RATE 38400
 
 
 #include<avr/io.h>
@@ -20,9 +19,12 @@ uint16_t address;
 int main(void){
 	init();
 	_delay_ms(2000);
+	uart_puts("Restart complete");
 
 	while(1){
-		//PORTD^=(1<<7);
+		//_delay_ms(2000);
+		PORTD^=(1<<7);
+		//uart_puts("Restart complete");
 		if (uart_available()>2){
 			while (uart_available()>0){
 				inByte=uart_getc();
