@@ -7,7 +7,7 @@ import struct,sys
 
 #linux:
 try:
-    ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=0.01)
+    ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=0.01)
 except :
     print("Could not open serial port, please make sure \nthe board is connected and port number is correct")
     sys.exit()
@@ -45,14 +45,9 @@ while True:
     print("                                           ")
     print("===========================================")
     option=int(input())
-    romsize=8192*1024
-    ramsize=128*1024
     print(option);
     if(option==1):
         name=input("What the name of the file?")
-
-        f = open(name, 'w')
-        f.close()
         romsize=int(input("What the size of the rom in KB?"))
         romsize=romsize*1024
         ser.flushInput()
@@ -60,7 +55,7 @@ while True:
         ser.write(bytes("b","ASCII"))
         ser.write(bytes("c","ASCII"))
         numBytes=0
-        f = open(name, 'ab')#yes, that simple
+        f = open(name, 'wb')
         while (numBytes<romsize):
             while ser.inWaiting()==0:
                 print("waiting...\n",numBytes)
@@ -92,25 +87,7 @@ while True:
             f.write(data)
             numBytes=numBytes+1
         f.close()
-    """if(option==3):
-        name=input("From which file?")
-        ser.write(bytes("a","ASCII"))
-        ser.write(bytes("b","ASCII"))
-        ser.write(bytes("k","ASCII"))
-        f = open(name, 'rb')
-        index=0
-        while index<ramsize:
-            ser.flushInput()
-            ser.write(f.read(1))
-            a=ser.read(1)
-            print(a.decode('ASCII'))
-            while a==bytes("N","ASCII"):
-                print("error, buffer full")
-                f.seek(-1,1);
-                ser.write(f.read(1))
-                a=ser.read();
-            index=index+1
-            print("byte",index)"""
+
     if(option==3):
         name=input("What's the name of the file?")
         ramsize=int(input("Please insert the size of RAM file in kB?"))
@@ -136,13 +113,18 @@ while True:
             for j in range(len(data)):
                  CHK=CHK^data[j]
             time.sleep(0.001)
-            print("Writing data. Current porcentage:{:.2%}".format(i/numblocks),end='\r')
-            #print("CHK:", CHK)
+            print("CHK:", CHK)
             response=~CHK
             while response!=CHK:
                 #print("sending data")
+                print("Writing data. Current porcentage:{:.2%}\n".format(i/numblocks),end='\r')
                 ser.write(data)
+                """When there was no delay between the two calls to ser.write, the board would glitch
+                at 6.25%. The reason is unknown. Always at the same point. Please if you understand
+                why this works, send me a comment or message. Thanks"""
+                time.sleep(0.001)
                 ser.write(struct.pack(">B",CHK&0xFF))
+                time.sleep(0.001)
                 timeout=30
                 while ser.inWaiting()==0:
                     time.sleep(0.01)
@@ -153,8 +135,8 @@ while True:
                         break
                 if(ser.inWaiting()>0):
                     response=ord(ser.read(1))
-                if response!=CHK:
-                    print("wrong checksum, sending chunk again\n")
+                    if response!=CHK:
+                        print("wrong checksum, sending chunk again\n")
         f.close()
 
 
@@ -204,7 +186,6 @@ while True:
         ser.write(bytes("a","ASCII"))
         ser.write(bytes("b","ASCII"))
         ser.write(bytes("r","ASCII"))
-        ser.read(3)
         time.sleep(1)
         while ser.inWaiting()>0:
             data = ser.readline()
