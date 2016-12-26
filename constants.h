@@ -5,6 +5,7 @@
 
 #define LED 7
 #define CLK 7
+#define SND 6
 #define RST 5
 #define WR 4
 #define RD 3

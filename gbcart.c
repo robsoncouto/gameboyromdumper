@@ -57,8 +57,8 @@ void init(void){
 	ADRHDDR=0xFF;
 	ADRLDDR=0xFF;
 	DATADDR=0x00;
-	ControlDDR=(1<<WR)|(1<<RD)|(1<<LED)|(1<<RST)|(1<<MREQ)|(1<<TX)|(0<<RX);
-	ControlPort=(1<<WR)|(1<<RD)|(0<<LED)|(1<<RST)|(1 <<MREQ);
+	ControlDDR=(1<<WR)|(1<<RD)|(1<<LED)|(1<<RST)|(1<<MREQ)|(1<<TX)|(0<<RX)|(1<<SND);
+	ControlPort=(1<<WR)|(1<<RD)|(0<<LED)|(1<<RST)|(1 <<MREQ)|(1<<SND);
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	sei();
 	uint8_t data =readByte(0x0147);
@@ -323,6 +323,41 @@ void writeRAM(void){
 	ControlPort|=(1<<MREQ);
 }
 
+void programByte(uint32_t addr, uint8_t data){
+		DATADDR=0xFF;
+
+		ControlPort|=(1<<RD);
+		selectbank(ROM,0x5555/16384);
+		Go2ADR(0x5555);
+		DATAOUT=0xAA;
+		ControlPort&=~(1<<SND);
+		_delay_us(50);
+		ControlPort|=(1<<SND);
+
+		Go2ADR(0x2AAA);
+		DATAOUT=0x55;
+		ControlPort&=~(1<<SND);
+		_delay_us(50);
+		ControlPort|=(1<<SND);
+
+		selectbank(ROM,0x5555/16384);
+		Go2ADR(0x5555);
+		DATAOUT=0xA0;
+		ControlPort&=~(1<<SND);
+		_delay_us(50);
+		ControlPort|=(1<<SND);
+
+		if(addr<16384)Go2ADR(addr);//FIXME
+		if(addr>16384) {
+			selectbank(ROM,addr/16384);
+			Go2ADR(0x4000+addr%16384);//FIXME
+		}
+		DATAOUT=data;
+		ControlPort&=~(1<<SND);
+		_delay_us(50);
+		ControlPort|=(1<<SND);
+}
+
 void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
   uint8_t dataBuffer[128];
   uint16_t address=0;
@@ -339,9 +374,16 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
         dataBuffer[i]=uart_getc();
         CHK ^= dataBuffer[i];
   }
-  while(uart_available()==0);
+	if(location==ROM){
+		while(uart_available()==0);
+	  MBC=uart_getc();
+		CHK^=MBC;
+	}
+
+	while(uart_available()==0);
   CHKreceived=uart_getc();
   programMode();
+
   //only program the bytes if the checksum is equal to the one received
   if(location==RAM){
 		selectbank(RAM,address/8192);
@@ -358,5 +400,19 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
 		ControlPort|=(1<<MREQ);
 		WriteByte(0x1000,0x00);
 
+  }
+	/*The address received in the real adrees in the memory.
+	However, the bank scheme needs this address to be converted as with RAM.
+	And there is still the flash programming algorithm to mind.*/
+	if(location==ROM){
+		//selectbank(ROM,address/16384);
+		_delay_ms(5);
+		if(CHKreceived==CHK){
+      for (int i = 0; i < 128; i++){
+        programByte(address,dataBuffer[i]);
+				address=address+1;
+      }
+    uart_putc(CHK);
+    }
   }
 }

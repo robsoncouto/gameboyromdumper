@@ -142,28 +142,58 @@ while True:
 
 
     if(option==4):
-        bank=int(input("What is the bank to be written?"))
-        name=input("From which file?")
-        ser.write(bytes("a","ASCII"))
-        ser.write(bytes("b","ASCII"))
-        ser.write(bytes("z","ASCII"))
-        ser.write(struct.pack(">B",bank))
+        name=input("What's the name of the file?")
+        romsize=int(input("Please insert the size of ROM file in kB?"))
+        romsize=1024*romsize
+        MBC=int(input("Sorry, as the cartridge should be empty, there is no\n mean of knowning the memory controller type. \nCould you please insert the MCB number (1,2,3 or 5)?"))
+
+        numblocks=romsize/128;
+        print(name)
+        print(numblocks)
         f = open(name, 'rb')
-        pos=bank*16384
-        f.seek(pos)
-        index=0
-        while index<16384:
+        for i in range(int(numblocks)):
             ser.flushInput()
-            ser.write(f.read(1))
-            a=ser.read(1)
-            print(a.decode('ASCII'))
-            while a==bytes("N","ASCII"):
-                print("error, buffer full")
-                f.seek(-1,1);
-                ser.write(f.read(1))
-                a=ser.read();
-            index=index+1
-            print("bit",index)
+            ser.write(bytes("a","ASCII"))
+            ser.write(bytes("b","ASCII"))
+            ser.write(bytes("b","ASCII"))
+            time.sleep(0.001)
+            ser.write(struct.pack(">B",i>>8))
+            CHK=i>>8
+            time.sleep(0.001)
+            ser.write(struct.pack(">B",i&0xFF))
+            CHK^=i&0xFF
+            time.sleep(0.001)
+            data=f.read(128);
+            #print(data)
+            for j in range(len(data)):
+                 CHK=CHK^data[j]
+            time.sleep(0.001)
+            CHK^=MBC&0xFF
+            print("CHK:", CHK)
+            response=~CHK
+            while response!=CHK:
+                #print("sending data")
+                print("Writing data. Current porcentage:{:.2%}\n".format(i/numblocks),end='\r')
+                ser.write(data)
+                time.sleep(0.001)
+
+                ser.write(struct.pack(">B",MBC&0xFF))
+                time.sleep(0.001)
+                ser.write(struct.pack(">B",CHK&0xFF))
+                time.sleep(0.001)
+                timeout=300
+                while ser.inWaiting()==0:
+                    time.sleep(0.01)
+                    timeout=timeout-1
+                    #print("timeout",timeout)
+                    if timeout==0:
+                        print("could not get a response, please start again\n")
+                        break
+                if(ser.inWaiting()>0):
+                    response=ord(ser.read(1))
+                    if response!=CHK:
+                        print("wrong checksum, sending chunk again\n")
+        f.close()
 
     if(option==5):
         ser.flushInput()

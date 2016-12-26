@@ -21,7 +21,7 @@ int main(void){
 	init();
 	_delay_ms(2000);
 	while(1){
-		PORTB^=(1<<7);	
+		PORTB^=(1<<7);
 		//uart_puts("Restart complete");
 		if (uart_available()>2){
 			while (uart_available()>0){
@@ -55,7 +55,11 @@ int main(void){
 								addrL=uart_getc();
           			writeBlock(RAM,addrH,addrL);
 							break;
-							case 'e':
+							case 'b':
+								while(uart_available()<2);
+								addrH=uart_getc();
+								addrL=uart_getc();
+								writeBlock(ROM,addrH,addrL);
 							break;
 							//puppet mode, work in progress
 							case 'f':
