@@ -1,5 +1,5 @@
 #define F_CPU 16000000UL
-#define UART_BAUD_RATE 9600
+#define UART_BAUD_RATE 38400
 #define ROM 0
 #define RAM 1
 
@@ -122,8 +122,8 @@ void init(void){
 	itoa(ramsize,debug,10);
 	uart_puts(debug);
 	uart_putc('\n');
-	serialAvailable=uart_available;
-	serialRead=uart_getc;
+	//serialAvailable=uart_available;
+	//serialRead=uart_getc;
 }
 
 
@@ -326,8 +326,9 @@ void writeRAM(void){
 void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
   uint8_t dataBuffer[128];
   uint16_t address=0;
-  uint8_t CHK=blockH,CHKreceived;
-  CHK^=blockL;
+  uint8_t CHK=0,CHKreceived=0;
+	CHK=blockH;
+	CHK^=blockL;
 
   address=blockH;
   address=(address<<8)|blockL;
@@ -343,14 +344,17 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
   programMode();
   //only program the bytes if the checksum is equal to the one received
   if(location==RAM){
+		selectbank(RAM,address/8192);
+		WriteByte(0x1000,0x0A);//enable RAM writing
 		ControlPort&=~(1<<MREQ);
-		selectbank(RAM,address/4);
-    if(CHKreceived==CHK){
+		if(CHKreceived==CHK){
       for (int i = 0; i < 128; i++){
         WriteByte(0xA000+(address%8192),dataBuffer[i]);
       }
     uart_putc(CHK);
     }
 		ControlPort|=(1<<MREQ);
+		WriteByte(0x1000,0x00);
+
   }
 }
