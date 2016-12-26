@@ -7,5 +7,5 @@ Schematic and layout ealge files are available, the cartridge-PC interface board
 ##Usage
 The python script is used for reading saves, roms or the cartridge header. The microcontroller code was written for a Atmega32, but can be easily ported to other microcontrollers or architectures.
 ##Serial library
-This code uses the serial library kindly shared by Peter Fleury
-http://homepage.hispeed.ch/peterfleury/avr-software.html
+This code uses avr-uart library kindly shared by Andy Gock based on uart library code by Peter Fleury
+https://github.com/andygock/avr-uart
