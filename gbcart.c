@@ -34,7 +34,7 @@ void WriteByte(uint16_t Adr,uint8_t data){
 	DATAOUT=data;
 	ControlPort|=(1<<RD);
 	ControlPort&=~(1<<WR);
-	_delay_us(2);
+	_delay_us(5);
 	ControlPort|=(1<<WR);
 }
 
@@ -347,9 +347,11 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
 		selectbank(RAM,address/8192);
 		WriteByte(0x1000,0x0A);//enable RAM writing
 		ControlPort&=~(1<<MREQ);
+		_delay_ms(5);
 		if(CHKreceived==CHK){
       for (int i = 0; i < 128; i++){
         WriteByte(0xA000+(address%8192),dataBuffer[i]);
+				address=address+1;
       }
     uart_putc(CHK);
     }
