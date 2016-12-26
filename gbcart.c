@@ -362,12 +362,14 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
   uint8_t dataBuffer[128];
   uint16_t address=0;
   uint8_t CHK=0,CHKreceived=0;
+	uint32_t addr32=0;
 	CHK=blockH;
 	CHK^=blockL;
 
   address=blockH;
   address=(address<<8)|blockL;
   address*=128;
+	if (location==ROM)addr32=address;
 
   for(uint8_t i=0;i<128;i++){
         while(uart_available()==0);
@@ -409,7 +411,7 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
 		_delay_ms(5);
 		if(CHKreceived==CHK){
       for (int i = 0; i < 128; i++){
-        programByte(address,dataBuffer[i]);
+        programByte(addr32,dataBuffer[i]);
 				address=address+1;
       }
     uart_putc(CHK);
