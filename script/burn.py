@@ -45,6 +45,7 @@ while True:
     print("                                           ")
     print("===========================================")
     option=int(input())
+    ramsize=32*1024
     print(option);
     if(option==1):
         name=input("What the name of the file?")
@@ -120,7 +121,7 @@ while True:
                 print("Writing data. Current porcentage:{:.2%}\n".format(i/numblocks),end='\r')
                 ser.write(data)
                 """When there was no delay between the two calls to ser.write, the board would glitch
-                at 6.25%. The reason is unknown. Always at the same point. Please if you understand
+                at 6.25%. The reason is unknown. Always at the same  point. Please if you understand
                 why this works, send me a comment or message. Thanks"""
                 time.sleep(0.001)
                 ser.write(struct.pack(">B",CHK&0xFF))
