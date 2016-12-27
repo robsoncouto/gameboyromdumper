@@ -102,6 +102,11 @@ void init(void){
 		case 0x03:ramsize=4;break;
 		case 0x04:ramsize=16;break;
 	}
+	//debug
+	MBC=1;
+	romsize=32;
+	ramsize=1;
+
 	if (MBC==1)	{
 		if (readByte(0x0149)==0x03){
 			WriteByte(0x7000,(0x01));//32k ram mode
@@ -110,9 +115,7 @@ void init(void){
 		}
 	}
 	//debug
-	MBC=1;
-	romsize=32;
-	ramsize=1;
+
 	char debug[5];
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
@@ -355,9 +358,9 @@ void programByte(uint32_t addr, uint8_t data){
 		ControlPort|=(1<<SND);
 
 		if(addr<16384)Go2ADR(addr);//FIXME
-		if(addr>16384) {
+		if(addr>=16384) { //fixed (>=)
 			selectbank(ROM,addr/16384);
-			Go2ADR(0x4000+addr%16384);//FIXME
+			Go2ADR(0x4000+(addr%16384));//FIXME
 		}
 		DATAOUT=data;
 		_delay_us(4);
@@ -417,7 +420,7 @@ void eraseflash(void){
 		ControlPort|=(1<<SND);
 
 		DATADDR=0x00;
-		while(~(DATAIN&(1<<7)));
+		while(~(readByte(0xFF)&(1<<7)));
 		if(readByte(0xFF)==0xFF) uart_puts("Finished erasing\n");
 }
 
@@ -431,8 +434,12 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
 
   address=blockH;
   address=(address<<8)|blockL;
-  address*=128;
-	if (location==ROM)addr32=address;
+  if (location==ROM){
+		addr32=address;
+		addr32*=128;
+	}else{
+		address=128;
+	}
 
   for(uint8_t i=0;i<128;i++){
         while(uart_available()==0);
