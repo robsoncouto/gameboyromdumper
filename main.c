@@ -62,6 +62,10 @@ int main(void){
 								writeBlock(ROM,addrH,addrL);
 							break;
 							//puppet mode, work in progress
+							case 'e':
+								eraseflash();
+							break;
+
 							case 'f':
 							//read bytes from location
 								while(serialAvailable()<3);

@@ -32,5 +32,6 @@ void writeBlock(uint8_t location, uint8_t blockH,uint8_t blockL);
 uint8_t dataAvailable(void);
 
 void programByte(uint32_t, uint8_t);
+void eraseflash(void);
 
 #endif
