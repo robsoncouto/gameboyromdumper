@@ -10,7 +10,7 @@
 #include "constants.h"
 #include "serial/uart.h"
 
-uint8_t MBC=0,romsize=0,ramsize=0;//size in banks
+uint8_t MBC=0,romsize=32,ramsize=0;//size in banks
 
 
 int (*serialAvailable)(void);
@@ -110,6 +110,8 @@ void init(void){
 		}
 	}
 	//debug
+	MBC=1;
+	romsize=32;
 	char debug[5];
 	uart_puts("MBC:");
 	uart_putc(MBC+0x30);
@@ -327,24 +329,28 @@ void programByte(uint32_t addr, uint8_t data){
 		DATADDR=0xFF;
 
 		ControlPort|=(1<<RD);
-		selectbank(ROM,0x5555/16384);
+
+		selectbank(ROM,1);
 		Go2ADR(0x5555);
 		DATAOUT=0xAA;
+		_delay_us(4);
 		ControlPort&=~(1<<SND);
-		_delay_us(50);
+		_delay_us(60);
 		ControlPort|=(1<<SND);
 
 		Go2ADR(0x2AAA);
 		DATAOUT=0x55;
+		_delay_us(4);
 		ControlPort&=~(1<<SND);
-		_delay_us(50);
+		_delay_us(60);
 		ControlPort|=(1<<SND);
 
-		selectbank(ROM,0x5555/16384);
+		selectbank(ROM,1);
 		Go2ADR(0x5555);
 		DATAOUT=0xA0;
+		_delay_us(4);
 		ControlPort&=~(1<<SND);
-		_delay_us(50);
+		_delay_us(60);
 		ControlPort|=(1<<SND);
 
 		if(addr<16384)Go2ADR(addr);//FIXME
@@ -353,8 +359,9 @@ void programByte(uint32_t addr, uint8_t data){
 			Go2ADR(0x4000+addr%16384);//FIXME
 		}
 		DATAOUT=data;
+		_delay_us(4);
 		ControlPort&=~(1<<SND);
-		_delay_us(50);
+		_delay_us(60);
 		ControlPort|=(1<<SND);
 }
 
@@ -412,7 +419,7 @@ void writeBlock(uint8_t location,uint8_t blockH,uint8_t blockL){
 		if(CHKreceived==CHK){
       for (int i = 0; i < 128; i++){
         programByte(addr32,dataBuffer[i]);
-				address=address+1;
+				addr32=addr32+1;
       }
     uart_putc(CHK);
     }
